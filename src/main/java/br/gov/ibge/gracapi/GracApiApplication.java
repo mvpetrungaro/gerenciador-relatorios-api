@@ -18,13 +18,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import br.gov.ibge.gracapi.relatorio.dto.RelatorioDTO;
 import br.gov.ibge.gracapi.relatorio.dto.SolicitacaoRelatoriosDTO;
-import br.gov.ibge.gracapi.relatorio.dto.TerritorioRelatoriosDTO;
-import br.gov.ibge.gracapi.relatorio.enumerators.PosicaoTerritorioEnum;
-import br.gov.ibge.gracapi.relatorio.enumerators.StatusExecucaoEnum;
+import br.gov.ibge.gracapi.relatorio.enumerators.FormatoDadoEnum;
+import br.gov.ibge.gracapi.relatorio.enumerators.TipoDadoEnum;
 import br.gov.ibge.gracapi.relatorio.models.FormatoDadoRelatorios;
 import br.gov.ibge.gracapi.relatorio.models.Relatorio;
 import br.gov.ibge.gracapi.relatorio.models.SolicitacaoRelatorios;
-import br.gov.ibge.gracapi.relatorio.models.TerritorioRelatorios;
 import br.gov.ibge.gracapi.relatorio.models.TipoDadoRelatorios;
 
 @SpringBootApplication
@@ -55,32 +53,25 @@ public class GracApiApplication {
 	    		.map(d -> df.format(d))
 	    		.orElse(null);
 	    
-	    Converter<Set<TipoDadoRelatorios>, List<String>> tipoDadoConverter = c -> Optional.ofNullable(c.getSource())
+	    Converter<Set<TipoDadoRelatorios>, List<TipoDadoEnum>> tipoDadoConverter = c -> Optional.ofNullable(c.getSource())
 	    		.map(s -> s.stream()
-		    		.map(td -> td.getTipoDado().getDescricao())
+		    		.map(td -> td.getTipoDado())
 		    		.toList()
 				).orElse(null);
 	    
-	    Converter<Set<FormatoDadoRelatorios>, List<String>> formatoDadoConverter = c -> Optional.ofNullable(c.getSource())
+	    Converter<Set<FormatoDadoRelatorios>, List<FormatoDadoEnum>> formatoDadoConverter = c -> Optional.ofNullable(c.getSource())
 	    		.map(s -> s.stream()
-	    				.map(fd -> fd.getFormatoDado().getDescricao())
-	    				.toList()
+    				.map(fd -> fd.getFormatoDado())
+    				.toList()
 	    		).orElse(null);
-	    
-	    Converter<PosicaoTerritorioEnum, String> posicaoTerritorioConverter = c -> c.getSource().getDescricao();
-	    Converter<StatusExecucaoEnum, String> statusExecucaoConverter = c -> c.getSource().getDescricao();
 	    
 	    TypeMap<SolicitacaoRelatorios, SolicitacaoRelatoriosDTO> solicitacaoRelatoriosMapper = modelMapper.typeMap(SolicitacaoRelatorios.class, SolicitacaoRelatoriosDTO.class);
 	    solicitacaoRelatoriosMapper.addMappings(mapper -> mapper.using(dateConverter).map(SolicitacaoRelatorios::getDataSolicitacao, SolicitacaoRelatoriosDTO::setDataSolicitacao));
 	    solicitacaoRelatoriosMapper.addMappings(mapper -> mapper.using(tipoDadoConverter).map(SolicitacaoRelatorios::getTiposDado, SolicitacaoRelatoriosDTO::setTiposDado));
 	    solicitacaoRelatoriosMapper.addMappings(mapper -> mapper.using(formatoDadoConverter).map(SolicitacaoRelatorios::getFormatosDado, SolicitacaoRelatoriosDTO::setFormatosDado));
 	    
-	    TypeMap<TerritorioRelatorios, TerritorioRelatoriosDTO> territorioRelatoriosMapper = modelMapper.typeMap(TerritorioRelatorios.class, TerritorioRelatoriosDTO.class);
-	    territorioRelatoriosMapper.addMappings(mapper -> mapper.using(posicaoTerritorioConverter).map(TerritorioRelatorios::getPosicao, TerritorioRelatoriosDTO::setPosicao));
-	    
 	    TypeMap<Relatorio, RelatorioDTO> relatorioMapper = modelMapper.typeMap(Relatorio.class, RelatorioDTO.class);
 	    relatorioMapper.addMappings(mapper -> mapper.using(dateConverter).map(Relatorio::getDataExecucao, RelatorioDTO::setDataExecucao));
-		relatorioMapper.addMappings(mapper -> mapper.using(statusExecucaoConverter).map(Relatorio::getStatusExecucao, RelatorioDTO::setStatusExecucao));
 		
 	    return modelMapper;
 	}

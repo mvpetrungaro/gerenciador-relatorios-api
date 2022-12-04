@@ -19,72 +19,74 @@ import br.gov.ibge.gracapi.relatorio.repositories.RelatorioRepository;
 
 @Component
 public class FilaRelatorios {
-	
-	private static final String[] MENSAGENS_ERRO = {
-		"Erro de modelagem na Tabela EDATA",
-		"Tabela EDATA bloqueada por outro usuário",
-		"Erro ao carregar os dados do relatório"
-	};
-	
+
+	private static final String[] MENSAGENS_ERRO = { "Erro de modelagem na Tabela EDATA",
+			"Tabela EDATA bloqueada por outro usuário", "Erro ao carregar os dados do relatório" };
+
 	@Value("${grac.relatorios.taxa_sucesso}")
 	private int TAXA_SUCESSO;
-	
+
 	@Autowired
 	private ModelMapper modelMapper;
-	
+
 	@Autowired
 	private SimpMessagingTemplate template;
-	
+
 	@Autowired
 	private RelatorioRepository relatorioRepository;
-	
+
 	private ExecutorService fila = Executors.newSingleThreadExecutor();
 
 	public void addRelatorio(Relatorio relatorio) {
-		
-		LogManager.getLogger().info("Relatório {} incluído na fila (ID Tabela: {}).", relatorio.getId(), relatorio.getIdTabelaEdata());
-		
+
+		LogManager.getLogger().info("Relatório {} incluído na fila (ID Tabela: {}).", relatorio.getId(),
+				relatorio.getIdTabelaEdata());
+
 		Runnable task = () -> {
 			try {
-				LogManager.getLogger().info("Relatório {} em execução (ID Tabela: {}).", relatorio.getId(), relatorio.getIdTabelaEdata());
-				
+				LogManager.getLogger().info("Relatório {} em execução (ID Tabela: {}).", relatorio.getId(),
+						relatorio.getIdTabelaEdata());
+
 				relatorio.setStatusExecucao(StatusExecucaoEnum.EM_EXECUCAO);
 				relatorio.setDataExecucao(new Date());
-				
+
 				relatorioRepository.save(relatorio);
-				
+
 				template.convertAndSend("/topic/relatorios", modelMapper.map(relatorio, RelatorioDTO.class));
-				
+
+				// Simulação da interação com o Sistema EDATA.
+				// Se o valor aleatório calculado estiver dentro da faixa de sucesso, considerar
+				// uma execução de sucesso, senão, considerar uma falha.
 				Thread.sleep(5000);
-				
-				double resultado = Math.random() * 100;
-				
-				//Se o resultado estiver dentro da faixa de sucesso, considerar uma execução de sucesso, senão, considerar uma falha.
-				if (resultado <= TAXA_SUCESSO) {
+				boolean sucesso = (Math.random() * 100) <= TAXA_SUCESSO;
+
+				if (sucesso) {
 					relatorio.setStatusExecucao(StatusExecucaoEnum.SUCESSO);
 				} else {
 					relatorio.setStatusExecucao(StatusExecucaoEnum.FALHA);
-					
-					int idxErro = (int) Math.random() * 3;
+
+					// Simulação de um caso de erro.
+					int idxErro = (int) (Math.random() * 3);
 					relatorio.setMensagemErro(MENSAGENS_ERRO[idxErro]);
 				}
 			} catch (InterruptedException e) {
-				
+
 				relatorio.setStatusExecucao(StatusExecucaoEnum.ABORTADO);
 				e.printStackTrace();
 			} finally {
-				
+
 				Duration duracao = Duration.between(relatorio.getDataExecucao().toInstant(), new Date().toInstant());
 				relatorio.setDuracaoExecucao(Math.abs(duracao.toSeconds()));
-				
+
 				relatorioRepository.save(relatorio);
-				
+
 				template.convertAndSend("/topic/relatorios", modelMapper.map(relatorio, RelatorioDTO.class));
-				
-				LogManager.getLogger().info("Relatório {} concluído como {} (ID Tabela: {}).", relatorio.getId(), relatorio.getStatusExecucao(), relatorio.getIdTabelaEdata());
+
+				LogManager.getLogger().info("Relatório {} concluído como {} (ID Tabela: {}).", relatorio.getId(),
+						relatorio.getStatusExecucao(), relatorio.getIdTabelaEdata());
 			}
 		};
-		
+
 		fila.execute(task);
 	}
 }
