@@ -57,7 +57,7 @@ public class FilaRelatorios {
 				// Simulação da interação com o Sistema EDATA.
 				// Se o valor aleatório calculado estiver dentro da faixa de sucesso, considerar
 				// uma execução de sucesso, senão, considerar uma falha.
-				Thread.sleep(5000);
+				Thread.sleep(5000 + (int)(Math.random() * 5000));
 				boolean sucesso = (Math.random() * 100) <= TAXA_SUCESSO;
 
 				if (sucesso) {

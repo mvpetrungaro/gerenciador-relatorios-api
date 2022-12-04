@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import br.gov.ibge.gracapi.relatorio.dto.ReexecucaoRelatoriosParamsDTO;
 import br.gov.ibge.gracapi.relatorio.dto.RelatorioDTO;
 import br.gov.ibge.gracapi.relatorio.enumerators.StatusExecucaoEnum;
+import br.gov.ibge.gracapi.relatorio.infra.RelatoriosReader;
 import br.gov.ibge.gracapi.relatorio.models.Relatorio;
 import br.gov.ibge.gracapi.relatorio.queue.FilaRelatorios;
 import br.gov.ibge.gracapi.relatorio.repositories.RelatorioRepository;
@@ -25,6 +26,9 @@ public class RelatorioService {
 	
 	@Autowired
 	private RelatorioRepository relatorioRepository;
+	
+	@Autowired
+	private RelatoriosReader relatoriosReader;
 	
 	@Transactional
 	public List<Relatorio> atualizarRelatorios(List<Relatorio> relatorios) {
@@ -42,5 +46,10 @@ public class RelatorioService {
 		relatoriosAtualizados.stream().sorted().forEach(filaRelatorios::addRelatorio);
 		
 		return relatoriosAtualizados.stream().map(r -> modelMapper.map(r, RelatorioDTO.class)).toList();
+	}
+	
+	public byte[] gerarRelatorio(Integer idRelatorio) {
+		
+		return relatoriosReader.getRelatorio();
 	}
 }
