@@ -66,7 +66,7 @@ public class FilaRelatorios {
 					relatorio.setStatusExecucao(StatusExecucaoEnum.FALHA);
 
 					// Simulação de um caso de erro.
-					int idxErro = (int) (Math.random() * 3);
+					int idxErro = (int) (Math.random() * MENSAGENS_ERRO.length);
 					relatorio.setMensagemErro(MENSAGENS_ERRO[idxErro]);
 				}
 			} catch (InterruptedException e) {
