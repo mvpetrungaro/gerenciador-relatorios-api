@@ -58,7 +58,7 @@ public class FilaRelatorios {
 				// Se o valor aleatório calculado estiver dentro da faixa de sucesso, considerar
 				// uma execução de sucesso, senão, considerar uma falha.
 				Thread.sleep(5000 + (int)(Math.random() * 5000));
-				boolean sucesso = (Math.random() * 100) <= TAXA_SUCESSO;
+				boolean sucesso = (Math.random() * 100) <= 50;//TAXA_SUCESSO;
 
 				if (sucesso) {
 					relatorio.setStatusExecucao(StatusExecucaoEnum.SUCESSO);

@@ -1,12 +1,12 @@
 package br.gov.ibge.gracapi.relatorio.controllers;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
+import br.gov.ibge.gracapi.relatorio.dto.DownloadRelatorioDTO;
 import br.gov.ibge.gracapi.relatorio.dto.ReexecucaoRelatoriosParamsDTO;
 import br.gov.ibge.gracapi.relatorio.dto.RelatorioDTO;
 import br.gov.ibge.gracapi.relatorio.dto.SolicitacaoRelatoriosDTO;
@@ -55,13 +57,42 @@ public class RelatorioController {
 	@GetMapping("/download/{idRelatorio}")
 	public void downloadRelatorio(@PathVariable Integer idRelatorio, HttpServletResponse response) {
 		
-		byte[] relatorio = relatorioService.gerarRelatorio(idRelatorio);
+		try {
+    		DownloadRelatorioDTO relatorio = relatorioService.gerarRelatorio(idRelatorio);
+    		
+    		response.setHeader(HttpHeaders.CONTENT_TYPE, "application/octet-stream; charset=utf-8");
+    		response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + relatorio.getNomeRelatorio() + "; filename*=" + relatorio.getNomeRelatorio());
+    		response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(relatorio.getConteudoRelatorio().length));
+    		
+    		try (OutputStream out = response.getOutputStream()) {
+    			out.write(relatorio.getConteudoRelatorio());
+    		}
+		} catch (HttpClientErrorException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/solicitacao/download/{idSolicitacao}")
+	public void downloadRelatorios(@PathVariable Integer idSolicitacao, HttpServletResponse response) {
 		
-		try (OutputStream out = response.getOutputStream()) {
-			
-			out.write(relatorio);
-		} catch (IOException e) {
-			
+		try {
+    		DownloadRelatorioDTO relatorio = relatorioService.gerarRelatorios(idSolicitacao);
+    		
+    		response.setHeader(HttpHeaders.CONTENT_TYPE, "application/octet-stream; charset=utf-8");
+    		response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + relatorio.getNomeRelatorio() + "; filename*=" + relatorio.getNomeRelatorio());
+    		response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(relatorio.getConteudoRelatorio().length));
+    		
+    		try (OutputStream out = response.getOutputStream()) {
+    			out.write(relatorio.getConteudoRelatorio());
+    		}
+		} catch (HttpClientErrorException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
