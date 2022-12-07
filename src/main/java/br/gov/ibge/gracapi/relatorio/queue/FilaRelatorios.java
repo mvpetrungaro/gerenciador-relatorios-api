@@ -76,7 +76,7 @@ public class FilaRelatorios {
 			} finally {
 
 				Duration duracao = Duration.between(relatorio.getDataExecucao().toInstant(), new Date().toInstant());
-				relatorio.setDuracaoExecucao(Math.abs(duracao.toSeconds()));
+				relatorio.setDuracaoExecucao(Math.abs(duracao.toMillis() / 1000));
 
 				relatorioRepository.save(relatorio);
 

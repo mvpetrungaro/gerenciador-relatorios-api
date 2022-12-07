@@ -1,6 +1,7 @@
 package br.gov.ibge.gracapi.relatorio.services;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class RelatorioService {
 		
 		relatoriosAtualizados.stream().sorted().forEach(filaRelatorios::addRelatorio);
 		
-		return relatoriosAtualizados.stream().map(r -> modelMapper.map(r, RelatorioDTO.class)).toList();
+		return relatoriosAtualizados.stream().map(r -> modelMapper.map(r, RelatorioDTO.class)).collect(Collectors.toList());
 	}
 	
 	public byte[] gerarRelatorio(Integer idRelatorio) {

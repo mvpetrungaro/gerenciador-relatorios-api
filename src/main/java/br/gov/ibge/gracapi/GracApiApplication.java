@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -56,13 +57,13 @@ public class GracApiApplication {
 	    Converter<Set<TipoDadoRelatorios>, List<TipoDadoEnum>> tipoDadoConverter = c -> Optional.ofNullable(c.getSource())
 	    		.map(s -> s.stream()
 		    		.map(td -> td.getTipoDado())
-		    		.toList()
+		    		.collect(Collectors.toList())
 				).orElse(null);
 	    
 	    Converter<Set<FormatoDadoRelatorios>, List<FormatoDadoEnum>> formatoDadoConverter = c -> Optional.ofNullable(c.getSource())
 	    		.map(s -> s.stream()
     				.map(fd -> fd.getFormatoDado())
-    				.toList()
+    				.collect(Collectors.toList())
 	    		).orElse(null);
 	    
 	    TypeMap<SolicitacaoRelatorios, SolicitacaoRelatoriosDTO> solicitacaoRelatoriosMapper = modelMapper.typeMap(SolicitacaoRelatorios.class, SolicitacaoRelatoriosDTO.class);
