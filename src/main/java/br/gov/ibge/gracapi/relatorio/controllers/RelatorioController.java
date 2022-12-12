@@ -97,4 +97,9 @@ public class RelatorioController {
 			throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	@GetMapping("/solicitacao/interrupcao/{idSolicitacao}")
+	public void interromperSolicitacao(@PathVariable Integer idSolicitacao) {
+		solicitacaoRelatoriosService.interromperSolicitacao(idSolicitacao);
+	}
 }

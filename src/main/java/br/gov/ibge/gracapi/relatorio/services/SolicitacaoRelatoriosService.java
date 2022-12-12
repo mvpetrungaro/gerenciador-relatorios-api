@@ -107,4 +107,8 @@ public class SolicitacaoRelatoriosService {
 
 		return modelMapper.map(solicitacao, SolicitacaoRelatoriosDTO.class);
 	}
+
+	public void interromperSolicitacao(Integer idSolicitacao) {
+		filaRelatorios.interromperFila(idSolicitacao);
+	}
 }

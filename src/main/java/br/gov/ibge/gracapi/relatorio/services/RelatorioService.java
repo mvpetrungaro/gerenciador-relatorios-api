@@ -47,7 +47,11 @@ public class RelatorioService {
 
 		List<Relatorio> relatorios = relatorioRepository.findAllById(reexecucaoDTO.getIdsRelatorios());
 
-		relatorios.forEach(r -> r.setStatusExecucao(StatusExecucaoEnum.AGUARDANDO_EXECUCAO));
+		relatorios.forEach(r -> {
+			r.setStatusExecucao(StatusExecucaoEnum.AGUARDANDO_EXECUCAO);
+			r.setDataExecucao(null);
+			r.setDuracaoExecucao(null);
+		});
 
 		List<Relatorio> relatoriosAtualizados = atualizarRelatorios(relatorios);
 
@@ -70,7 +74,7 @@ public class RelatorioService {
 		// "." + rel.getSolicitacao().getFormatoArquivo().name().toLowerCase();
 		String nomeRelatorio = String.valueOf(relatorio.getIdTabelaEdata())
 				+ ".html";
-		byte[] conteudoRelatorio = relatoriosReader.getRelatorio();
+		byte[] conteudoRelatorio = relatoriosReader.getRelatorio(nomeRelatorio);
 
 		return new DownloadRelatorioDTO(nomeRelatorio, conteudoRelatorio);
 	}
@@ -90,7 +94,7 @@ public class RelatorioService {
 					// "." + rel.getSolicitacao().getFormatoArquivo().name().toLowerCase();
 					String nomeRelatorio = String.valueOf(relatorio.getIdTabelaEdata())
 							+ ".html";
-					byte[] conteudoRelatorio = relatoriosReader.getRelatorio();
+					byte[] conteudoRelatorio = relatoriosReader.getRelatorio(nomeRelatorio);
 
 					DownloadRelatorioDTO dto = new DownloadRelatorioDTO(nomeRelatorio, conteudoRelatorio);
 

@@ -17,7 +17,7 @@ public class RelatoriosReader {
 //	private static final Path DIRECTORY = Path
 //			.of(RelatoriosReader.class.getClassLoader().getResource("relatorios").getPath());
 
-	public byte[] getRelatorio() throws Exception {
+	public byte[] getAnyRelatorio() throws Exception {
 		
 		Path DIRECTORY = Paths.get(RelatoriosReader.class.getClassLoader().getResource("relatorios").toURI());
 		
@@ -56,6 +56,33 @@ public class RelatoriosReader {
 		
 		if (conteudoRelatorio == null) {
 			throw new Exception("Erro ao mockar relatório");
+		}
+		
+		return conteudoRelatorio;
+	}
+	
+	public byte[] getRelatorio(String nomeRelatorio) throws Exception {
+		
+		Path DIRECTORY = Paths.get(RelatoriosReader.class.getClassLoader().getResource("relatorios").toURI());
+		
+		byte[] conteudoRelatorio = null;
+		
+		try (InputStream is = Files.newInputStream(DIRECTORY.resolve(nomeRelatorio));
+				ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+			
+			int nRead;
+		    byte[] data = new byte[4];
+
+		    while ((nRead = is.read(data, 0, data.length)) != -1) {
+		        buffer.write(data, 0, nRead);
+		    }
+
+		    buffer.flush();
+		    conteudoRelatorio = buffer.toByteArray();
+		}
+		
+		if (conteudoRelatorio == null) {
+			throw new Exception("Mock do relatório não encontrado");
 		}
 		
 		return conteudoRelatorio;
