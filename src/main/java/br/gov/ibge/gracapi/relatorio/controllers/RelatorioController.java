@@ -36,6 +36,12 @@ public class RelatorioController {
 	@Autowired
 	private RelatorioService relatorioService;
 	
+	@GetMapping("/solicitacao")
+	@ResponseBody
+	public List<SolicitacaoRelatoriosDTO> getSolicitacoesRelatorios() {
+		return solicitacaoRelatoriosService.buscarSolicitacoesRelatorios();
+	}
+	
 	@GetMapping("/solicitacao/{idSolicitacao}")
 	@ResponseBody
 	public SolicitacaoRelatoriosDTO getSolicitacaoRelatorios(@PathVariable Integer idSolicitacao) {

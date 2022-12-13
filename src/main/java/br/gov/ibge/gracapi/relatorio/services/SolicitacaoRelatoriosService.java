@@ -1,6 +1,8 @@
 package br.gov.ibge.gracapi.relatorio.services;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.modelmapper.ModelMapper;
@@ -33,6 +35,13 @@ public class SolicitacaoRelatoriosService {
 
 	@Autowired
 	private SolicitacaoRelatoriosRepository solicitacaoRepository;
+
+	public List<SolicitacaoRelatoriosDTO> buscarSolicitacoesRelatorios() {
+
+		return solicitacaoRepository.findAll().stream()
+				.map(solicitacao -> modelMapper.map(solicitacao, SolicitacaoRelatoriosDTO.class))
+				.collect(Collectors.toList());
+	}
 
 	public SolicitacaoRelatoriosDTO buscarSolicitacaoRelatorios(Integer idSolicitacao) {
 
