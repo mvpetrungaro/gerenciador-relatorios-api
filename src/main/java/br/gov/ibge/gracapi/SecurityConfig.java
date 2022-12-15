@@ -31,6 +31,8 @@ public class SecurityConfig {
  		
 		http
 			.csrf().disable()
+			.cors()
+		.and()
  			.httpBasic()
    		.and()
  			.authorizeRequests()
@@ -46,7 +48,7 @@ public class SecurityConfig {
 				})
 		.and()
 			.logout()
-    			.deleteCookies("SESSION", "JSESSIONID")
+//    			.deleteCookies("JSESSIONID")
 //    			.addLogoutHandler(new LogoutHandler() {
 //    				@Override
 //    				public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
