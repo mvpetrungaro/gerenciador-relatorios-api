@@ -36,31 +36,21 @@ public class SecurityConfig {
  			.httpBasic()
    		.and()
  			.authorizeRequests()
- 				.anyRequest().fullyAuthenticated()
+ 				.anyRequest().authenticated()
 		.and()
 			.exceptionHandling()
 				.authenticationEntryPoint(new AuthenticationEntryPoint() {
 					@Override
-					public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+					public void commence(HttpServletRequest request, HttpServletResponse response,
+							AuthenticationException authException) throws IOException, ServletException {
+
 						response.setHeader("WWW-Authenticate", "FormBased");
 						response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
 					}
 				})
 		.and()
 			.logout()
-//    			.deleteCookies("JSESSIONID")
-//    			.addLogoutHandler(new LogoutHandler() {
-//    				@Override
-//    				public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-//    					String origin = request.getHeader("Origin");
-//    					
-//    					if (StringUtils.hasText(origin)) {
-//    						response.setHeader("Access-Control-Allow-Origin", origin);
-//    						response.setHeader("Access-Control-Allow-Credentials", "true");
-//    					}
-//    				}
-//    			})
-    			.logoutSuccessHandler((new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)));
+				.logoutSuccessHandler((new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)));
  		
  		return http.build();
  	}
