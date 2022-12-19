@@ -13,7 +13,7 @@ public class LoginController {
 	
 	@GetMapping
 	@ResponseBody
-	public UserDetails getSolicitacoesRelatorios(Authentication authentication) {
+	public UserDetails getUser(Authentication authentication) {
 		return (UserDetails) authentication.getPrincipal();
 	}
 }
