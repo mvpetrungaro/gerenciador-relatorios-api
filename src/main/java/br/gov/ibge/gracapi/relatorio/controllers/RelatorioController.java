@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 import br.gov.ibge.gracapi.relatorio.dto.DownloadRelatorioDTO;
 import br.gov.ibge.gracapi.relatorio.dto.ReexecucaoRelatoriosParamsDTO;
 import br.gov.ibge.gracapi.relatorio.dto.RelatorioDTO;
 import br.gov.ibge.gracapi.relatorio.dto.SolicitacaoRelatoriosDTO;
 import br.gov.ibge.gracapi.relatorio.dto.SolicitacaoRelatoriosParamsDTO;
+import br.gov.ibge.gracapi.relatorio.exception.RecursoNaoEncontradoException;
 import br.gov.ibge.gracapi.relatorio.services.RelatorioService;
 import br.gov.ibge.gracapi.relatorio.services.SolicitacaoRelatoriosService;
 
@@ -45,7 +45,16 @@ public class RelatorioController {
 	@GetMapping("/solicitacao/{idSolicitacao}")
 	@ResponseBody
 	public SolicitacaoRelatoriosDTO getSolicitacaoRelatorios(@PathVariable Integer idSolicitacao) {
-		return solicitacaoRelatoriosService.buscarSolicitacaoRelatorios(idSolicitacao);
+		
+		try {
+    		return solicitacaoRelatoriosService.buscarSolicitacaoRelatorios(idSolicitacao);
+		} catch (RecursoNaoEncontradoException e) {
+			e.printStackTrace();
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	@PostMapping("/solicitacao")
@@ -73,12 +82,12 @@ public class RelatorioController {
     		try (OutputStream out = response.getOutputStream()) {
     			out.write(relatorio.getConteudoRelatorio());
     		}
-		} catch (HttpClientErrorException e) {
+		} catch (RecursoNaoEncontradoException e) {
 			e.printStackTrace();
-			throw e;
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
@@ -95,12 +104,12 @@ public class RelatorioController {
     		try (OutputStream out = response.getOutputStream()) {
     			out.write(relatorio.getConteudoRelatorio());
     		}
-		} catch (HttpClientErrorException e) {
+		} catch (RecursoNaoEncontradoException e) {
 			e.printStackTrace();
-			throw e;
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	

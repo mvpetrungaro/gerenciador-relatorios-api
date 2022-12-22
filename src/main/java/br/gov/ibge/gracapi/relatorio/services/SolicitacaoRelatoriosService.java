@@ -16,6 +16,7 @@ import br.gov.ibge.gracapi.relatorio.dto.TerritorioRelatoriosParamsDTO;
 import br.gov.ibge.gracapi.relatorio.enumerators.FormatoDadoEnum;
 import br.gov.ibge.gracapi.relatorio.enumerators.StatusExecucaoEnum;
 import br.gov.ibge.gracapi.relatorio.enumerators.TipoDadoEnum;
+import br.gov.ibge.gracapi.relatorio.exception.RecursoNaoEncontradoException;
 import br.gov.ibge.gracapi.relatorio.models.FormatoDadoRelatorios;
 import br.gov.ibge.gracapi.relatorio.models.Relatorio;
 import br.gov.ibge.gracapi.relatorio.models.SolicitacaoRelatorios;
@@ -43,10 +44,11 @@ public class SolicitacaoRelatoriosService {
 				.collect(Collectors.toList());
 	}
 
-	public SolicitacaoRelatoriosDTO buscarSolicitacaoRelatorios(Integer idSolicitacao) {
+	public SolicitacaoRelatoriosDTO buscarSolicitacaoRelatorios(Integer idSolicitacao) throws Exception {
 
 		return solicitacaoRepository.findById(idSolicitacao)
-				.map(solicitacao -> modelMapper.map(solicitacao, SolicitacaoRelatoriosDTO.class)).orElse(null);
+				.map(solicitacao -> modelMapper.map(solicitacao, SolicitacaoRelatoriosDTO.class))
+				.orElseThrow(() -> new RecursoNaoEncontradoException("Solicitação não encontrada"));
 	}
 
 	@Transactional

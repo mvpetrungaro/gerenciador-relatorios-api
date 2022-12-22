@@ -11,6 +11,8 @@ import java.util.Random;
 
 import org.springframework.stereotype.Component;
 
+import br.gov.ibge.gracapi.relatorio.exception.RecursoNaoEncontradoException;
+
 @Component
 public class RelatoriosReader {
 
@@ -82,7 +84,7 @@ public class RelatoriosReader {
 		}
 		
 		if (conteudoRelatorio == null) {
-			throw new Exception("Mock do relatório não encontrado");
+			throw new RecursoNaoEncontradoException("Mock do relatório não encontrado");
 		}
 		
 		return conteudoRelatorio;

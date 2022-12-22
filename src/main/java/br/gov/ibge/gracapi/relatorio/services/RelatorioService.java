@@ -9,15 +9,14 @@ import java.util.zip.ZipOutputStream;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpClientErrorException;
 
 import br.gov.ibge.gracapi.relatorio.dto.DownloadRelatorioDTO;
 import br.gov.ibge.gracapi.relatorio.dto.ReexecucaoRelatoriosParamsDTO;
 import br.gov.ibge.gracapi.relatorio.dto.RelatorioDTO;
 import br.gov.ibge.gracapi.relatorio.enumerators.StatusExecucaoEnum;
+import br.gov.ibge.gracapi.relatorio.exception.RecursoNaoEncontradoException;
 import br.gov.ibge.gracapi.relatorio.infra.RelatoriosReader;
 import br.gov.ibge.gracapi.relatorio.models.Relatorio;
 import br.gov.ibge.gracapi.relatorio.queue.FilaRelatorios;
@@ -66,7 +65,7 @@ public class RelatorioService {
 		Optional<Relatorio> optRelatorio = relatorioRepository.findById(idRelatorio);
 
 		if (!optRelatorio.isPresent()) {
-			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Relatório não encontrado");
+			throw new RecursoNaoEncontradoException("Relatório não encontrado");
 		}
 
 		Relatorio relatorio = optRelatorio.get();
@@ -88,6 +87,10 @@ public class RelatorioService {
 
 				List<Relatorio> relatorios = relatorioRepository.findByIdSolicitacaoAndStatusExecucao(idSolicitacao,
 						StatusExecucaoEnum.SUCESSO);
+				
+				if (relatorios.isEmpty()) {
+					throw new RecursoNaoEncontradoException("Nenhum relatório executado com sucesso encontrado");
+				}
 
 				for (Relatorio relatorio : relatorios) {
 
