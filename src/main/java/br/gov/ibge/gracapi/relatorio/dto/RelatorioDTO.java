@@ -11,4 +11,5 @@ public class RelatorioDTO {
 	private String dataExecucao;
 	private Long duracaoExecucao;
 	private String mensagemErro;
+	private Integer idSolicitacao;
 }

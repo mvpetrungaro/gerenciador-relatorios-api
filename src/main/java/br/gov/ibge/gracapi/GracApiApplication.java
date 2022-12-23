@@ -75,6 +75,7 @@ public class GracApiApplication {
 	    solicitacaoRelatoriosMapper.addMappings(mapper -> mapper.using(formatoDadoConverter).map(SolicitacaoRelatorios::getFormatosDado, SolicitacaoRelatoriosDTO::setFormatosDado));
 	    
 	    TypeMap<Relatorio, RelatorioDTO> relatorioMapper = modelMapper.typeMap(Relatorio.class, RelatorioDTO.class);
+	    relatorioMapper.addMapping(rel -> rel.getSolicitacao().getId(), RelatorioDTO::setIdSolicitacao);
 	    relatorioMapper.addMappings(mapper -> mapper.using(dateConverter).map(Relatorio::getDataExecucao, RelatorioDTO::setDataExecucao));
 		
 	    return modelMapper;
