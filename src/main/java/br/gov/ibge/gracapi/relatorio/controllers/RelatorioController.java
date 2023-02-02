@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,14 +60,14 @@ public class RelatorioController {
 	
 	@PostMapping("/solicitacao")
 	@ResponseBody
-	public SolicitacaoRelatoriosDTO solicitarRelatorios(@RequestBody SolicitacaoRelatoriosParamsDTO solicitacaoDTO) {
-		return solicitacaoRelatoriosService.solicitarRelatorios(solicitacaoDTO);
+	public SolicitacaoRelatoriosDTO solicitarRelatorios(@RequestBody SolicitacaoRelatoriosParamsDTO solicitacaoDTO, Authentication authentication) {
+		return solicitacaoRelatoriosService.solicitarRelatorios(solicitacaoDTO, authentication.getName());
 	}
 	
 	@PostMapping("/reexecucao")
 	@ResponseBody
-	public List<RelatorioDTO> reexecutarRelatorios(@RequestBody ReexecucaoRelatoriosParamsDTO reexecucaoDTO) {
-		return relatorioService.reexecutarRelatorios(reexecucaoDTO);
+	public List<RelatorioDTO> reexecutarRelatorios(@RequestBody ReexecucaoRelatoriosParamsDTO reexecucaoDTO, Authentication authentication) {
+		return relatorioService.reexecutarRelatorios(reexecucaoDTO, authentication.getName());
 	}
 	
 	@GetMapping("/download/{idRelatorio}")
@@ -114,7 +115,16 @@ public class RelatorioController {
 	}
 	
 	@GetMapping("/solicitacao/interrupcao/{idSolicitacao}")
-	public void interromperSolicitacao(@PathVariable Integer idSolicitacao) {
-		solicitacaoRelatoriosService.interromperSolicitacao(idSolicitacao);
+	public SolicitacaoRelatoriosDTO interromperSolicitacao(@PathVariable Integer idSolicitacao, Authentication authentication) {
+		
+		try {
+			return solicitacaoRelatoriosService.interromperSolicitacao(idSolicitacao, authentication.getName());
+		} catch (RecursoNaoEncontradoException e) {
+			e.printStackTrace();
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }

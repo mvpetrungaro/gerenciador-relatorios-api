@@ -1,5 +1,6 @@
 package br.gov.ibge.gracapi.relatorio.models;
 
+import java.time.Duration;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -54,5 +55,30 @@ public class Relatorio implements Comparable<Relatorio> {
 	@Override
 	public int compareTo(Relatorio o) {
 		return this.getIdTabelaEdata().compareTo(o.getIdTabelaEdata());
+	}
+	
+	public void changeStatus(StatusExecucaoEnum status) {
+		this.setStatusExecucao(status);
+		
+		switch (status) {
+			case EM_EXECUCAO:
+				this.setDataExecucao(new Date());
+				break;
+				
+			case AGUARDANDO_EXECUCAO:
+			case ABORTADO:
+				this.setDataExecucao(null);
+				this.setDuracaoExecucao(null);
+				break;
+				
+			case SUCESSO:
+			case FALHA:
+				Duration duracao = Duration.between(this.getDataExecucao().toInstant(), new Date().toInstant());
+				this.setDuracaoExecucao(Math.abs(duracao.toMillis() / 1000));
+				break;
+
+			default:
+				break;
+		}
 	}
 }

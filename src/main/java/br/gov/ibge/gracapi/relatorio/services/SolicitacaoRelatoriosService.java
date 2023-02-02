@@ -22,7 +22,7 @@ import br.gov.ibge.gracapi.relatorio.models.Relatorio;
 import br.gov.ibge.gracapi.relatorio.models.SolicitacaoRelatorios;
 import br.gov.ibge.gracapi.relatorio.models.TerritorioRelatorios;
 import br.gov.ibge.gracapi.relatorio.models.TipoDadoRelatorios;
-import br.gov.ibge.gracapi.relatorio.queue.FilaRelatorios;
+import br.gov.ibge.gracapi.relatorio.queue.FilaRelatoriosProvider;
 import br.gov.ibge.gracapi.relatorio.repositories.SolicitacaoRelatoriosRepository;
 
 @Service
@@ -32,7 +32,7 @@ public class SolicitacaoRelatoriosService {
 	private ModelMapper modelMapper;
 
 	@Autowired
-	private FilaRelatorios filaRelatorios;
+	private FilaRelatoriosProvider filaRelatoriosProvider;
 
 	@Autowired
 	private SolicitacaoRelatoriosRepository solicitacaoRepository;
@@ -107,19 +107,24 @@ public class SolicitacaoRelatoriosService {
 		return solicitacaoRepository.save(solicitacao);
 	}
 
-	public SolicitacaoRelatoriosDTO solicitarRelatorios(SolicitacaoRelatoriosParamsDTO dto) {
+	public SolicitacaoRelatoriosDTO solicitarRelatorios(SolicitacaoRelatoriosParamsDTO dto, String loginUsuario) {
 
 		SolicitacaoRelatorios solicitacao = criarSolicitacaoRelatorios(dto);
 
 		LogManager.getLogger().info("Solicitação {} criada (ID Projeto: {}).", solicitacao.getId(),
 				solicitacao.getIdProjetoEdata());
 
-		solicitacao.getRelatorios().stream().sorted().forEach(filaRelatorios::addRelatorio);
+		solicitacao.getRelatorios().stream().sorted().forEach(r -> filaRelatoriosProvider.getFila(loginUsuario).executar(r));
 
 		return modelMapper.map(solicitacao, SolicitacaoRelatoriosDTO.class);
 	}
 
-	public void interromperSolicitacao(Integer idSolicitacao) {
-		filaRelatorios.interromperFila(idSolicitacao);
+	public SolicitacaoRelatoriosDTO interromperSolicitacao(Integer idSolicitacao, String loginUsuario) throws Exception {
+		
+		SolicitacaoRelatoriosDTO solicitacao = buscarSolicitacaoRelatorios(idSolicitacao);
+		
+		filaRelatoriosProvider.getFila(loginUsuario).interromper();
+		
+		return solicitacao;
 	}
 }

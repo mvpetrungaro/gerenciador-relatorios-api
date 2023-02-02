@@ -19,7 +19,7 @@ import br.gov.ibge.gracapi.relatorio.enumerators.StatusExecucaoEnum;
 import br.gov.ibge.gracapi.relatorio.exception.RecursoNaoEncontradoException;
 import br.gov.ibge.gracapi.relatorio.infra.RelatoriosReader;
 import br.gov.ibge.gracapi.relatorio.models.Relatorio;
-import br.gov.ibge.gracapi.relatorio.queue.FilaRelatorios;
+import br.gov.ibge.gracapi.relatorio.queue.FilaRelatoriosProvider;
 import br.gov.ibge.gracapi.relatorio.repositories.RelatorioRepository;
 
 @Service
@@ -29,7 +29,7 @@ public class RelatorioService {
 	private ModelMapper modelMapper;
 
 	@Autowired
-	private FilaRelatorios filaRelatorios;
+	private FilaRelatoriosProvider filaRelatoriosProvider;
 
 	@Autowired
 	private RelatorioRepository relatorioRepository;
@@ -42,7 +42,7 @@ public class RelatorioService {
 		return relatorioRepository.saveAll(relatorios);
 	}
 
-	public List<RelatorioDTO> reexecutarRelatorios(ReexecucaoRelatoriosParamsDTO reexecucaoDTO) {
+	public List<RelatorioDTO> reexecutarRelatorios(ReexecucaoRelatoriosParamsDTO reexecucaoDTO, String loginUsuario) {
 
 		List<Relatorio> relatorios = relatorioRepository.findAllById(reexecucaoDTO.getIdsRelatorios());
 
@@ -54,7 +54,7 @@ public class RelatorioService {
 
 		List<Relatorio> relatoriosAtualizados = atualizarRelatorios(relatorios);
 
-		relatoriosAtualizados.stream().sorted().forEach(filaRelatorios::addRelatorio);
+		relatoriosAtualizados.stream().sorted().forEach(r -> filaRelatoriosProvider.getFila(loginUsuario).executar(r));
 
 		return relatoriosAtualizados.stream().map(r -> modelMapper.map(r, RelatorioDTO.class))
 				.collect(Collectors.toList());
